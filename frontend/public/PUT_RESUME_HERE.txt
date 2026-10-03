@@ -1,0 +1,2 @@
+Put your real resume PDF in this folder (public/) and name it "resume.pdf".
+The "Download resume" button in the site links to /resume.pdf automatically.
