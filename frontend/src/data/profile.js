@@ -23,7 +23,7 @@ export const profile = {
     "I build scalable backend systems and full-stack applications - turning complex business workflows into reliable software",
 
   // Shown as a small pill near the hero. Keep it short and true.
-  availability: "Open to backend / full-stack roles",
+  // availability: "Open to backend / full-stack roles",
 
   // ------------------------------------------------------------
   // MARQUEE
@@ -51,7 +51,7 @@ export const profile = {
   stats: [
     { value: "1+", label: "years writing production code" },
     { value: "50+", label: "ERP modules & workflows" },
-    { value: "500+", label: "ERP users supported" },
+    // { value: "500+", label: "ERP users supported" },
     { value: "₹47.86L+", label: "material tracked through returns" },
   ],
 
@@ -103,13 +103,13 @@ aboutParagraphs: [
   // or fictional project listed here is a problem once it's public.
   projects: [
     {
-      name: "(placeholder) Helpdesk & Ticketing System",
+      name: "Ledger — Multi-Tenant Lead Tracker",
+      stack: ["FastAPI", "React", "PostgreSQL", "WebSockets", "Stripe", "Docker"],
       description:
-        "Example only: a support-ticket app with role-based access and live status updates.",
-      stack: ["FastAPI", "React", "MySQL"],
-      status: "in-progress",
-      liveUrl: "",
-      githubUrl: "",
+        "A B2B SaaS-style CRM where an organization subscribes and its team tracks sales leads under strict per-tenant data isolation. Tenant-scoped RBAC (owner/admin/member), Stripe subscription billing with signature-verified and idempotent webhooks, live pipeline updates over WebSockets, optimistic-locking to prevent lost concurrent edits, and fuzzy duplicate-lead detection via Postgres trigram similarity.",
+      status: "live", // flip to "in_progress" if you haven't deployed yet
+      liveUrl: "https://multi-tenant-lead-tracker.vercel.app/login",
+      githubUrl: "https://github.com/MeghnaChandak/multi-tenant-lead-trackers",
     },
     {
       name: "(placeholder) Multi-Tenant SaaS Starter",
