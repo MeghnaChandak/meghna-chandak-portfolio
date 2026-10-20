@@ -1,28 +1,35 @@
 // ============================================================
 // Interests.jsx
 //
-// A grid of "beyond the code" cards - an emoji, a title, and a
-// real paragraph. This is the fix for personality being "locked
-// inside an image": the summit silhouette on the gate looks
-// nice, but a screen reader, a search engine, or someone quickly
-// skimming text can't get anything from an SVG. This section
-// says the same things in plain, readable sentences.
+// REWRITE: previously three emoji-headed cards ("🏔️ Trekking",
+// "🏃 Athletics", "🐾 Animals"). Emoji icons read as casual at
+// this level, and splitting personality into separate labeled
+// cards feels like a form, not a voice. This version folds the
+// same facts into flowing paragraphs with bold inline keywords -
+// closer to how a confident "about me" paragraph actually reads
+// (see shlok.tech for the reference point).
+//
+// Write paragraphs in profile.js using **word** to bold a phrase,
+// e.g. "I spend weekends **trekking** in the Sahyadris." This
+// function turns that into real <strong> elements safely - it
+// never injects raw HTML, so there's no XSS risk even though the
+// text comes from a data file you control.
 // ============================================================
 
-export default function Interests({ interests }) {
+function renderWithBold(text) {
+  const parts = text.split(/\*\*(.+?)\*\*/g) // odd indices are the bolded phrases
+  return parts.map((part, i) => (i % 2 === 1 ? <strong key={i}>{part}</strong> : part))
+}
+
+export default function Interests({ aboutParagraphs }) {
   return (
     <section className="interests" id="about">
-      <h2>Beyond the code</h2>
-      <p className="section-hint">The stuff I actually think about when I'm not at the keyboard.</p>
-      <div className="interests-grid">
-        {interests.map((item) => (
-          <div className="interest-card" key={item.title}>
-            <div className="interest-icon">{item.icon}</div>
-            <h3>{item.title}</h3>
-            <p>{item.body}</p>
-          </div>
-        ))}
-      </div>
+      <h2>About</h2>
+      {aboutParagraphs.map((p, i) => (
+        <p className="about-paragraph" key={i}>
+          {renderWithBold(p)}
+        </p>
+      ))}
     </section>
   )
 }

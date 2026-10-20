@@ -50,10 +50,14 @@ export default function CatGame() {
     }
   }
 
-  function jump() {
+  // `force` defaults to a fixed tap-jump, but a drag gesture (see the
+  // pointer handlers below) passes a stronger force for a longer pull -
+  // a flick launches the cat higher than a tap does, the same way a real
+  // slingshot gesture would.
+  function jump(force = JUMP_FORCE) {
     const s = stateRef.current
     if (!s || s.isJumping) return
-    s.velocity = JUMP_FORCE
+    s.velocity = force
     s.isJumping = true
   }
 
@@ -64,13 +68,31 @@ export default function CatGame() {
     setHasStarted(true)
   }
 
-  // Lets the game be played by tapping/clicking the canvas, not just Space -
-  // important on mobile, which has no keyboard visible by default.
-  function handleCanvasClick() {
+  // --- drag-to-jump: press and drag UP on the canvas, release to launch.
+  // The further you drag, the higher the jump (capped, so it can't launch
+  // the cat off-screen). A simple tap/click with no real drag still works
+  // as a normal fixed-height jump - see handlePointerUp below. ---
+  const dragRef = useRef(null) // { startY } while a drag is in progress, else null
+
+  function handlePointerDown(e) {
     if (!hasStarted || isOver) {
       startGame()
+      return
+    }
+    dragRef.current = { startY: e.clientY }
+  }
+
+  function handlePointerUp(e) {
+    if (!dragRef.current) return
+    const dragDistance = dragRef.current.startY - e.clientY // positive = dragged upward
+    dragRef.current = null
+
+    if (dragDistance > 12) {
+      // Scale extra force with drag distance, capped so it stays playable.
+      const extraForce = Math.min(dragDistance * 0.06, 6)
+      jump(JUMP_FORCE - extraForce)
     } else {
-      jump()
+      jump() // treat it as a plain tap/click
     }
   }
 
@@ -205,10 +227,16 @@ export default function CatGame() {
   return (
     <section className="cat-game" id="game">
       <h2>Beat the cat's high score</h2>
-      <p className="section-hint">Press Space to jump. Built as a small canvas game - no library, just the DOM.</p>
+      <p className="section-hint">Space to jump, or press-and-drag up on the canvas for a bigger jump. No library - just canvas and a game loop.</p>
 
       <div className="cat-game-frame">
-        <canvas ref={canvasRef} width={440} height={180} onClick={handleCanvasClick} />
+        <canvas
+          ref={canvasRef}
+          width={440}
+          height={180}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+        />
         {!hasStarted && (
           <div className="cat-game-overlay">
             <button className="btn-primary" onClick={startGame}>Press Space or click to play</button>

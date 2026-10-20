@@ -7,12 +7,16 @@
    ============================================================ */
 
 :root {
-  --cream: #F4EEE3;
-  --ink: #0B0C0E;
-  --amber: #D8A45E;
-  --sage: #7FA98C;
-  --line: rgba(244, 238, 227, 0.14);
-  --panel: rgba(20, 21, 24, 0.72);
+  /* Near-monochrome, one sharp accent. Previously a warm cream/amber/terracotta
+     palette - deliberately pulled back. Warm + illustrated reads as charming;
+     restrained + one precise accent reads as technical. This site wants the
+     second impression. */
+  --cream: #ECEDEF;
+  --ink: #0A0A0C;
+  --amber: #4FE0C4; /* the one accent color - used sparingly, not as a theme */
+  --sage: #4FE0C4;
+  --line: rgba(236, 237, 239, 0.12);
+  --panel: rgba(16, 17, 20, 0.78);
 
   /* Keeps content clear of notches / rounded phone corners */
   box-sizing: border-box;
@@ -35,7 +39,10 @@ body {
   line-height: 1.55;
 }
 
-h1, h2, h3 { font-family: 'Fraunces', serif; margin: 0; }
+/* Fraunces (serif) is now reserved for the gate name only - the one
+   deliberate editorial flourish. Everything else uses the sans-serif
+   stack, which reads more technical/restrained than serif-everywhere did. */
+h1, h2, h3 { font-family: 'DM Sans', system-ui, sans-serif; margin: 0; font-weight: 600; }
 a { color: inherit; }
 button { font: inherit; cursor: pointer; }
 
@@ -71,9 +78,9 @@ button { font: inherit; cursor: pointer; }
 .scene-sky-blob { position: absolute; inset: 0; } /* the gradient is set inline per-blob in Backdrop.jsx */
 
 .scene-sun {
-  position: absolute; width: 130px; height: 130px; border-radius: 50%;
-  background: radial-gradient(circle, #fff3d6 0%, #ffd48a 45%, rgba(255, 180, 120, 0) 72%);
-  filter: blur(1px);
+  position: absolute; width: 110px; height: 110px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(236, 237, 239, 0.55) 0%, rgba(79, 224, 196, 0.18) 45%, rgba(79, 224, 196, 0) 72%);
+  filter: blur(2px);
 }
 
 .scene-mountain-layer { position: absolute; left: 0; bottom: 0; width: 100%; transition: transform 150ms ease-out; }
@@ -152,14 +159,17 @@ button { font: inherit; cursor: pointer; }
   color: var(--amber); margin: 0 0 16px;
 }
 
-.gate-name { line-height: 0.98; }
+.gate-name { line-height: 1; white-space: nowrap; }
 .gate-name-up {
-  display: block; font-family: 'DM Sans', sans-serif; font-weight: 500;
-  font-size: clamp(38px, 8vw, 78px); letter-spacing: 0.05em;
+  font-family: 'DM Sans', sans-serif; font-weight: 500;
+  font-size: clamp(28px, 7vw, 68px); letter-spacing: 0.04em;
 }
 .gate-name-lo {
-  display: block; font-style: italic; font-weight: 500;
-  font-size: clamp(38px, 8vw, 78px);
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: clamp(28px, 7vw, 68px);
+}
+@media (max-width: 420px) {
+  .gate-name { white-space: normal; } /* only wraps on the narrowest phones */
 }
 
 .gate-tagline { max-width: 40ch; color: #C9CBC9; margin: 22px 0 28px; font-size: 15px; }
@@ -188,7 +198,7 @@ button { font: inherit; cursor: pointer; }
    The Marquee sits OUTSIDE any .site-inner, as a direct child of <main>,
    so it's free to span the full viewport width between two normal
    sections, without needing a second page-layout system. */
-.site-inner { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.site-inner { max-width: 1040px; margin: 0 auto; padding: 0 28px; }
 .site-inner:last-of-type { padding-bottom: 80px; }
 
 .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; }
@@ -196,6 +206,53 @@ button { font: inherit; cursor: pointer; }
 .top-nav ul { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; }
 .top-nav a { text-decoration: none; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: #B7B9B8; }
 .top-nav a:hover { color: var(--cream); }
+
+/* The nav "brand" is now a real button that takes you back to the gate -
+   resetting a <button> to look like plain text, so it doesn't look like
+   a generic form control. */
+.brand-button {
+  background: none; border: 0; padding: 0; color: inherit; font: inherit;
+  display: flex; align-items: center; gap: 6px;
+}
+.brand-button::before { content: '←'; font-size: 13px; opacity: 0.5; transition: opacity 150ms; }
+.brand-button:hover::before { opacity: 1; }
+
+/* ---- command palette ---- */
+.cmdk-trigger {
+  position: fixed; z-index: 10; bottom: 20px; left: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  background: var(--panel); backdrop-filter: blur(10px); color: #B7B9B8;
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px;
+  font-size: 12.5px; display: flex; align-items: center; gap: 4px;
+}
+.cmdk-trigger:hover { color: var(--cream); border-color: rgba(79, 224, 196, 0.35); }
+.cmdk-trigger span { font-size: 13px; }
+
+.cmdk-overlay {
+  position: fixed; inset: 0; z-index: 30;
+  background: rgba(5, 5, 6, 0.6); backdrop-filter: blur(2px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 14vh;
+}
+.cmdk-panel {
+  width: min(480px, calc(100vw - 40px));
+  background: #121317; border: 1px solid var(--line); border-radius: 14px;
+  overflow: hidden; box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.8);
+}
+.cmdk-input {
+  width: 100%; background: none; border: 0; border-bottom: 1px solid var(--line);
+  padding: 16px 18px; color: var(--cream); font: inherit; font-size: 15px;
+}
+.cmdk-input:focus { outline: none; }
+.cmdk-input::placeholder { color: #6E7178; }
+.cmdk-list { list-style: none; margin: 0; padding: 8px; max-height: 320px; overflow-y: auto; }
+.cmdk-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; border-radius: 8px; font-size: 13.5px; color: #D8D5CC;
+}
+.cmdk-item.is-highlighted { background: rgba(79, 224, 196, 0.1); color: var(--cream); }
+.cmdk-hint { font-size: 11px; color: #6E7178; text-transform: uppercase; letter-spacing: 0.04em; }
+.cmdk-empty { padding: 16px 12px; font-size: 13px; color: #6E7178; }
 
 .hero { padding: 50px 0 30px; max-width: 640px; }
 .hero-kicker { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--amber); margin: 0 0 14px; }
@@ -312,7 +369,8 @@ button { font: inherit; cursor: pointer; }
   position: relative; margin-top: 14px; border-radius: 12px; overflow: hidden;
   border: 1px solid var(--line); background: rgba(244, 238, 227, 0.04);
 }
-.cat-game-frame canvas { display: block; width: 100%; height: auto; cursor: pointer; }
+.cat-game-frame canvas { display: block; width: 100%; height: auto; cursor: grab; touch-action: none; }
+.cat-game-frame canvas:active { cursor: grabbing; }
 .cat-game-overlay {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 12px;
@@ -337,8 +395,9 @@ button { font: inherit; cursor: pointer; }
 .marquee:hover .marquee-track { animation-play-state: paused; }
 .marquee-item {
   flex-shrink: 0; padding: 0 18px;
-  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
-  font-size: 17px; color: #D8D5CC; white-space: nowrap;
+  font-family: ui-monospace, 'JetBrains Mono', monospace; font-weight: 500;
+  letter-spacing: 0.03em; text-transform: uppercase;
+  font-size: 12.5px; color: #B9BBC0; white-space: nowrap;
 }
 .marquee-dot { color: var(--amber); font-style: normal; margin-left: 18px; }
 @keyframes marquee-scroll {
@@ -348,26 +407,17 @@ button { font: inherit; cursor: pointer; }
 
 /* ---- stat row ---- */
 .stat-row { display: flex; gap: 30px; margin-top: 30px; flex-wrap: wrap; }
-.stat b { font-family: 'Fraunces', serif; font-size: 26px; display: block; font-weight: 500; }
+.stat b { font-family: 'DM Sans', sans-serif; font-size: 26px; display: block; font-weight: 600; }
 .stat span { font-size: 12px; color: #8B8E8C; }
 
-/* ---- interests / "beyond the code" ---- */
+/* ---- about (formerly a 3-card "interests" grid, now plain prose) ---- */
 .interests { padding: 20px 0 40px; }
-.interests h2 { font-weight: 500; font-size: 22px; margin-bottom: 4px; }
-.interests-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
-.interest-card {
-  background: rgba(244, 238, 227, 0.05); border: 1px solid var(--line);
-  border-radius: 14px; padding: 20px;
-  transition: transform 200ms ease, border-color 200ms ease, background 200ms ease;
+.interests h2 { font-weight: 600; font-size: 20px; margin-bottom: 16px; }
+.about-paragraph {
+  font-size: 15.5px; line-height: 1.75; color: #C9CBC9;
+  max-width: 62ch; margin: 0 0 16px;
 }
-.interest-card:hover { transform: translateY(-4px); border-color: rgba(216, 164, 94, 0.4); background: rgba(244, 238, 227, 0.08); }
-.interest-icon { font-size: 26px; margin-bottom: 10px; }
-.interest-card h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 16px; margin-bottom: 8px; }
-.interest-card p { font-size: 13.5px; color: #C9CBC9; margin: 0; line-height: 1.55; }
-
-@media (max-width: 760px) {
-  .interests-grid { grid-template-columns: 1fr; }
-}
+.about-paragraph strong { color: var(--cream); font-weight: 600; }
 
 .site-footer { display: flex; gap: 20px; padding: 30px 0; border-top: 1px solid var(--line); font-size: 13px; }
 .site-footer a { text-decoration: underline; text-underline-offset: 3px; }

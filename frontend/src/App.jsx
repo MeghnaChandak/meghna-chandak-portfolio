@@ -11,29 +11,55 @@ import Marquee from './components/Marquee.jsx'
 import StatRow from './components/StatRow.jsx'
 import Interests from './components/Interests.jsx'
 import ScrollProgress from './components/ScrollProgress.jsx'
+import CommandPalette from './components/CommandPalette.jsx'
 
 // ============================================================
 // App.jsx
 //
-// One <main> for the whole site (a page should only have one
-// "main" landmark - screen readers rely on that). The marquee
-// needs to run edge-to-edge, full viewport width, while everything
-// else stays in a centered, readable column - so content is split
-// into ".site-inner" wrappers (the readable column) with the
-// full-bleed <Marquee /> sitting between them, all still inside
-// the single <main>. See .site-inner's "full-bleed" trick in
-// index.css for how a child breaks out of a centered parent's
-// max-width without needing a second layout container.
+// - <Backdrop /> (the painterly mountain scene) now mounts ONLY on
+//   the gate, not the main site - see Backdrop.jsx for why.
+// - enter()/back() both reset scroll to the top, so switching
+//   between the gate and the main site never leaves you looking at
+//   a half-scrolled version of either.
+// - The command palette's `commands` array is where you'd add any
+//   new quick-action later (e.g. "Copy email") - each command is
+//   just a label plus a function to run.
 // ============================================================
+
+function scrollToId(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+}
 
 export default function App() {
   const [hasEntered, setHasEntered] = useState(false)
 
+  function enter() {
+    setHasEntered(true)
+    window.scrollTo(0, 0)
+  }
+
+  function back() {
+    setHasEntered(false)
+    window.scrollTo(0, 0)
+  }
+
+  const commands = [
+    { label: 'Go to About', hint: 'section', action: () => scrollToId('about') },
+    { label: 'Go to Experience', hint: 'section', action: () => scrollToId('experience') },
+    { label: 'Go to Projects', hint: 'section', action: () => scrollToId('projects') },
+    { label: 'Go to Skills', hint: 'section', action: () => scrollToId('skills') },
+    { label: 'Play the cat game', hint: 'section', action: () => scrollToId('game') },
+    { label: 'Download resume', hint: 'file', action: () => window.open(profile.resumeFile, '_blank') },
+    { label: 'Email Meghna', hint: 'mailto', action: () => window.open(`mailto:${profile.email}`) },
+    { label: 'Open GitHub', hint: 'link', action: () => window.open(profile.github, '_blank') },
+    { label: 'Open LinkedIn', hint: 'link', action: () => window.open(profile.linkedin, '_blank') },
+    { label: 'Back to entry screen', hint: 'go back', action: back },
+  ]
+
   return (
     <div className="app">
-      <Backdrop scene={hasEntered ? 'valley' : 'mountain'} />
-
-      {!hasEntered && <Gate profile={profile} onEnter={() => setHasEntered(true)} />}
+      {!hasEntered && <Backdrop />}
+      {!hasEntered && <Gate profile={profile} onEnter={enter} />}
 
       {hasEntered && (
         <>
@@ -41,7 +67,9 @@ export default function App() {
           <main className="site">
             <div className="site-inner">
               <nav className="top-nav">
-                <div className="brand">{profile.name}</div>
+                <button className="brand brand-button" onClick={back} aria-label="Back to entry screen">
+                  {profile.name}
+                </button>
                 <ul>
                   <li><a href="#about">About</a></li>
                   <li><a href="#experience">Experience</a></li>
@@ -71,7 +99,7 @@ export default function App() {
             <Marquee items={profile.marquee} />
 
             <div className="site-inner">
-              <Interests interests={profile.interests} />
+              <Interests aboutParagraphs={profile.aboutParagraphs} />
               <Experience experience={profile.experience} />
               <Projects projects={profile.projects} />
               <Skills skills={profile.skills} />
@@ -88,6 +116,7 @@ export default function App() {
       )}
 
       {hasEntered && <Chat profile={profile} />}
+      {hasEntered && <CommandPalette commands={commands} />}
     </div>
   )
 }

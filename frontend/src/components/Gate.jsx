@@ -14,7 +14,43 @@
 // to the main site at the same time.
 // ============================================================
 
+import { useEffect, useRef } from 'react'
+
+// Scrolling (wheel, trackpad, or a touch swipe) past a small threshold
+// also triggers Enter - this is what makes "scroll or click to continue"
+// actually true, instead of only the button working. We don't use the
+// page's real scroll position for this, because the gate is a fixed
+// full-screen section with nothing to scroll - a plain wheel/touch
+// listener is the simplest way to detect the gesture itself.
+function useScrollToEnter(onEnter) {
+  const touchStartY = useRef(null)
+
+  useEffect(() => {
+    function handleWheel(e) {
+      if (e.deltaY > 20) onEnter()
+    }
+    function handleTouchStart(e) {
+      touchStartY.current = e.touches[0].clientY
+    }
+    function handleTouchMove(e) {
+      if (touchStartY.current == null) return
+      const delta = touchStartY.current - e.touches[0].clientY
+      if (delta > 40) onEnter() // swiped up far enough
+    }
+    window.addEventListener('wheel', handleWheel, { passive: true })
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
+    window.addEventListener('touchmove', handleTouchMove, { passive: true })
+    return () => {
+      window.removeEventListener('wheel', handleWheel)
+      window.removeEventListener('touchstart', handleTouchStart)
+      window.removeEventListener('touchmove', handleTouchMove)
+    }
+  }, [onEnter])
+}
+
 export default function Gate({ profile, onEnter }) {
+  useScrollToEnter(onEnter)
+
   return (
     <section className="gate">
       <div className="gate-top">
@@ -40,7 +76,7 @@ export default function Gate({ profile, onEnter }) {
         <div className="gate-text-scrim">
           <p className="gate-kicker">{profile.availability}</p>
           <h1 className="gate-name">
-            <span className="gate-name-up">{profile.name.split(' ')[0]}</span>
+            <span className="gate-name-up">{profile.name.split(' ')[0]}</span>{' '}
             <span className="gate-name-lo">{profile.name.split(' ').slice(1).join(' ')}</span>
           </h1>
           <p className="gate-tagline">{profile.tagline}</p>
